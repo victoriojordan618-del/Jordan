@@ -4,11 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>A Special Letter for You</title>
-    <!-- Elegant fonts to match the aesthetic -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Inter:wght@300;400;600&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
     <style>
         * {
             box-sizing: border-box;
@@ -23,332 +22,334 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            perspective: 1000px;
+            padding: 20px;
         }
-
-        /* Background Music Controls */
-        .audio-control {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.8);
-            border: none;
-            padding: 10px;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            display: none;
-            font-size: 20px;
-        }
-
-        /* --- ENVELOPE SCREEN --- */
-        .envelope-container {
+        /* Background decorative elements */
+        .hearts-bg {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: #f7e1e3;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 500;
-            transition: opacity 1s ease, transform 1s ease;
-        }
-        .envelope-container.fade-out {
-            opacity: 0;
-            transform: scale(0.9);
             pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .heart-drop {
+            position: absolute;
+            color: rgba(242, 108, 129, 0.2);
+            font-size: 24px;
+            animation: fall linear infinite;
+        }
+        @keyframes fall {
+            0% { transform: translateY(-10%) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Envelope Styling */
+        .envelope-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            height: 300px;
+            z-index: 10;
+            cursor: pointer;
+            transition: transform 0.5s ease;
+        }
+        .envelope-container.open-animation {
+            animation: moveDown 0.8s forwards;
+        }
+        @keyframes moveDown {
+            100% { transform: translateY(150px) scale(0.9); opacity: 0.3; pointer-events: none; }
         }
         .envelope {
             position: relative;
-            width: 300px;
-            height: 200px;
-            background: #ffffff;
-            border-radius: 0 0 10px 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            cursor: pointer;
+            width: 100%;
+            height: 100%;
+            background-color: #f26c81;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+        .envelope::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 0;
+            height: 0;
+            border-left: 225px solid transparent;
+            border-right: 225px solid transparent;
+            border-top: 150px solid #e05369;
+            transform-origin: top;
+            transition: transform 0.4s ease 0.4s;
+            z-index: 5;
+        }
+        @media (max-width: 480px) {
+            .envelope::before {
+                border-left-width: 205px;
+                border-right-width: 205px;
+            }
+        }
+        .envelope-container.open .envelope::before {
+            transform: rotateX(180deg);
+            z-index: 1;
+            transition: transform 0.4s ease, z-index 0.1s ease 0.2s;
+        }
+        .envelope::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 225px solid #f57d91;
+            border-right: 225px solid #f57d91;
+            border-bottom: 150px solid #f57d91;
+            border-top: 150px solid transparent;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            z-index: 4;
+        }
+        @media (max-width: 480px) {
+            .envelope::after {
+                border-left-width: 205px;
+                border-right-width: 205px;
+            }
+        }
+        .wax-seal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background-color: #b3243a;
+            border-radius: 50%;
+            z-index: 6;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 20px;
-        }
-        /* Top Flap */
-        .envelope::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            border-left: 150px solid transparent;
-            border-right: 150px solid transparent;
-            border-top: 100px solid #f2d1d4;
-            transform-origin: top;
-            transition: transform 0.4s ease;
-            z-index: 2;
-        }
-        .envelope.open::before {
-            transform: rotateX(180deg);
-            z-index: 0;
-        }
-        .envelope-text {
-            font-family: 'Dancing Script', cursive;
+            color: white;
             font-size: 28px;
-            color: #d05a6e;
-            text-align: center;
-            z-index: 1;
-            margin-top: 40px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: opacity 0.3s ease;
         }
-        .tap-instruction {
-            font-size: 13px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: #b3747d;
-            animation: pulse 1.5s infinite;
-        }
-
-        /* --- MAIN LETTER CONTENT --- */
-        .content-wrapper {
-            width: 100%;
-            max-width: 450px;
-            min-height: 100vh;
-            background: #ffffff;
-            box-shadow: 0 0 20px rgba(0,0,0,0.05);
-            padding: 40px 25px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        .envelope-container.open .wax-seal {
             opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 1s ease 0.5s, transform 1s ease 0.5s;
-        }
-        .content-wrapper.fade-in {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* Image Slideshow Frame */
-        .slideshow-container {
-            width: 100%;
-            height: 400px;
-            border-radius: 15px;
-            overflow: hidden;
-            position: relative;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-            margin-bottom: 35px;
-        }
-        .slide {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0;
-            transition: opacity 1s ease-in-out;
-        }
-        .slide.active {
-            opacity: 1;
-        }
-
-        /* Letter Styling */
-        .letter-header {
-            text-align: center;
-            margin-bottom: 10px;
-        }
-        .letter-title {
-            font-family: 'Lora', serif;
-            font-size: 22px;
-            font-style: italic;
-            color: #4a4a4a;
-            letter-spacing: 1px;
-        }
-        .letter-date {
-            font-size: 12px;
-            color: #8c8c8c;
-            margin-top: 5px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .divider {
-            width: 60px;
-            height: 1px;
-            background-color: #e0e0e0;
-            margin: 20px 0 30px 0;
+            pointer-events: none;
         }
         
-        .letter-body {
-            font-family: 'Lora', serif;
-            font-size: 16px;
-            line-height: 1.8;
-            color: #2c2c2c;
+        /* Letter Styling */
+        .letter-card {
+            position: absolute;
+            top: 0;
+            left: 5%;
+            width: 90%;
+            background: #fffdfa;
+            padding: 30px;
+            border-radius: 4px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: translateY(20px) scale(0.95);
+            z-index: 2;
+            opacity: 0;
+            pointer-events: none;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .letter-card.visible {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+            pointer-events: auto;
+            position: relative;
+            left: 0;
             width: 100%;
+            max-width: 600px;
+            z-index: 20;
         }
-        .letter-body p {
-            margin-bottom: 20px;
-            text-indent: 30px;
-            text-align: justify;
-        }
-        .letter-body .no-indent {
-            text-indent: 0;
+        h1 {
+            font-family: 'Dancing Script', cursive;
+            color: #d13b53;
+            font-size: 42px;
             text-align: center;
-            margin-top: 25px;
+            margin-bottom: 25px;
+        }
+        p {
+            color: #4a4a4a;
+            line-height: 1.8;
+            font-size: 16px;
+            margin-bottom: 20px;
+            text-align: justify;
         }
         .signature {
             font-family: 'Dancing Script', cursive;
-            font-size: 24px;
-            color: #d05a6e;
+            font-size: 32px;
+            color: #d13b53;
             text-align: right;
             margin-top: 30px;
-            width: 100%;
-            padding-right: 10px;
         }
 
-        /* Highlighted Info Boxes */
-        .info-section {
-            width: 100%;
-            background-color: #fff9fa;
-            border-left: 3px solid #f2d1d4;
-            padding: 20px;
+        /* Image Gallery inside Letter */
+        .gallery-section {
             margin-top: 35px;
-            border-radius: 0 10px 10px 0;
+            border-top: 1px dashed #f26c81;
+            padding-top: 25px;
         }
-        .info-title {
+        .gallery-title {
             font-size: 14px;
-            font-weight: 600;
-            color: #b3747d;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
+            letter-spacing: 2px;
+            color: #8c8c8c;
+            text-align: center;
+            margin-bottom: 20px;
         }
-        .info-text {
-            font-size: 15px;
-            color: #4a4a4a;
-            line-height: 1.6;
+        .gallery-wrapper {
+            position: relative;
+            width: 100%;
+            height: 320px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-
-        /* Animations */
-        @keyframes pulse {
-            0% { opacity: 0.6; }
-            50% { opacity: 1; }
-            100% { opacity: 0.6; }
+        .polaroid-frame {
+            position: absolute;
+            width: 220px;
+            background: white;
+            padding: 12px 12px 25px 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            border: 1px solid #eaeaea;
+            transition: transform 0.4s ease, z-index 0.1s;
+            cursor: pointer;
+        }
+        .polaroid-frame img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border: 1px solid #f9f9f9;
+        }
+        .polaroid-caption {
+            font-family: 'Dancing Script', cursive;
+            font-size: 20px;
+            color: #555;
+            text-align: center;
+            margin-top: 12px;
         }
     </style>
 </head>
 <body>
 
-    <!-- Background Music (Loads the song safely) -->
-    <button class="audio-control" id="musicBtn">🎵</button>
-    <audio id="bgMusic" loop>
-        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-    </audio>
+    <div class="hearts-bg" id="heartsBg"></div>
 
-    <!-- 1. ENVELOPE SCREEN -->
-    <div class="envelope-container" id="envelopeScreen">
-        <div class="envelope" id="mainEnvelope" onclick="openLetter()">
-            <div class="envelope-text">For:<br>My Mahal</div>
+    <div class="envelope-container" id="envelopeContainer" onclick="openLetter()">
+        <div class="envelope">
+            <div class="wax-seal">❤</div>
         </div>
-        <div class="tap-instruction">✦ Tap to Open ✦</div>
     </div>
 
-    <!-- 2. MAIN LETTER CONTENT -->
-    <div class="content-wrapper" id="letterContent">
+    <div class="letter-card" id="letterCard">
+        <h1>Happy Monthsary, My Love!</h1>
         
-        <!-- Rotating Photos Slideshow -->
-        <div class="slideshow-container">
-            <!-- Replace these placeholder URLs with your actual photo filenames once uploaded -->
-            <img src="1000007694.jpg" class="slide active" alt="Happy Moment 1">
-            <img src="1000007693.jpg" class="slide" alt="Happy Moment 2">
-            <img src="1000007692.jpg" class="slide" alt="Happy Moment 3">
-            <img src="1000007587.jpg" class="slide" alt="Happy Moment 4">
-            <img src="1000007575.jpg" class="slide" alt="Happy Moment 5">
-            <img src="1000007467.jpg" class="slide" alt="Happy Moment 6">
-            <img src="1000007459.jpg" class="slide" alt="Happy Moment 7">
-            <img src="1000007462.jpg" class="slide" alt="Happy Moment 8">
-            <img src="1000007450.jpg" class="slide" alt="Happy Moment 9">
-            <img src="1000007455.jpg" class="slide" alt="Happy Moment 10">
+        <p>
+            I wanted to create something truly special and unique for you today. Every single moment shared with you has been a beautiful blessing, and my love for you grows deeper and stronger with each passing day.
+        </p>
+        
+        <p>
+            Thank you for being my constant source of happiness, my comfort, and my absolute best friend. Through all of life's little moments, having you by my side makes everything infinitely brighter. Here is to celebrating today, our wonderful journey together, and all the gorgeous memories we have yet to build side by side.
+        </p>
+
+        <div class="gallery-section">
+            <div class="gallery-title">Our Memory Stack (Tap to shuffle)</div>
+            <div class="gallery-wrapper" id="galleryWrapper"></div>
         </div>
 
-        <div class="letter-header">
-            <div class="letter-title">Happy Monthsary Letter</div>
-            <div class="letter-date">07 / 05 / 2026</div>
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="letter-body">
-            <p class="no-indent" style="text-align: left; font-weight: 600; margin-bottom: 25px;">Dear Izzy,</p>
-            
-            <p>Before then the day 5th every month are just a normal day for me, There's nothing special about it nothing more nothing less. But now here I am excited every month waiting for the 5th day just to greet you Happy monthsary.</p>
-            
-            <p>All I just wanted to say my love is thank you for everything, for being patient and understandings towards my flaws. For staying even though I'm still finding my ways to build my self, and also for loving me to the purest.</p>
-            
-            <p>My love I promised you that one day, when the time comes, when we were able to restrain to this type hard life and situation I will give everything that you deserve.</p>
-            
-            <p>I love you always my love, Thank you always for making me special, Happy monthsary my future wife.</p>
-            
-            <div class="signature">
-                Your swiftie boyfriend,<br>
-                <span style="font-weight: 600;">NEGRO</span>
-            </div>
-        </div>
-
-        <!-- Extra Details Sections -->
-        <div class="info-section">
-            <div class="info-title">What I love most about you</div>
-            <div class="info-text">What I love the most about her is all about she's being just the way she is. I love the way how mature, strong and Independent she is, family oriented, caring and understanding. I love how she tells about her day to me, the way she tells how she missed me and loved me. I love how beautiful she is, her smile, her eyes, the fluffy cheeks of her own that I loved to squeeze. The gap on her teeth that's so cute and how she treats me.</div>
-        </div>
-
-        <div class="info-section">
-            <div class="info-title">Our Story</div>
-            <div class="info-text">We are a lovely couple who are facing long distance, but still choosing each other every day and trying to be better for each other. ❤️</div>
-        </div>
-
+        <div class="signature">Forever Yours, <br> Jordan</div>
     </div>
 
     <script>
-        // Envelope opening and music transition
-        function openLetter() {
-            const envelope = document.getElementById('mainEnvelope');
-            const envelopeScreen = document.getElementById('envelopeScreen');
-            const letterContent = document.getElementById('letterContent');
-            const music = document.getElementById('bgMusic');
-            const musicBtn = document.getElementById('musicBtn');
-
-            envelope.classList.add('open');
-
-            setTimeout(() => {
-                envelopeScreen.classList.add('fade-out');
-                letterContent.classList.add('fade-in');
-                musicBtn.style.display = 'block';
-                
-                // Unlocks and autoplay audio safely upon user click interaction
-                music.play().catch(error => console.log("Audio playback interaction triggered."));
-            }, 600);
+        // Falling decorative background hearts
+        const bg = document.getElementById('heartsBg');
+        for (let i = 0; i < 25; i++) {
+            const heart = document.createElement('div');
+            heart.classList.add('heart-drop');
+            heart.innerText = '❤';
+            heart.style.left = Math.random() * 100 + '%';
+            heart.style.top = -10 - (Math.random() * 20) + '%';
+            heart.style.animationDuration = 4 + Math.random() * 6 + 's';
+            heart.style.animationDelay = Math.random() * 5 + 's';
+            bg.appendChild(heart);
         }
 
-        // Background Music Toggle Control
-        const music = document.getElementById('bgMusic');
-        const musicBtn = document.getElementById('musicBtn');
-        musicBtn.addEventListener('click', () => {
-            if (music.paused) {
-                music.play();
-                musicBtn.textContent = '🎵';
-            } else {
-                music.focus();
-                music.pause();
-                musicBtn.textContent = '🔇';
-            }
+        // Your uploaded image files list
+        const images = [
+          "IMG_20260703_105221_380.jpg",
+          "IMG_20260703_105240_529.jpg",
+          "IMG_20260703_105240_245.jpg",
+          "IMG_20260703_105311_508.jpg",
+          "IMG_20260703_105450_831.jpg",
+          "IMG_20260703_105514_703.jpg",
+          "IMG_20260704_201050_161.jpg",
+          "IMG_20260704_201101_863.jpg"
+        ];
+
+        const wrapper = document.getElementById('galleryWrapper');
+        let currentZIndex = 10;
+
+        // Populate polaroid layout stack dynamically
+        images.forEach((src, index) => {
+            const frame = document.createElement('div');
+            frame.classList.add('polaroid-frame');
+            
+            // Random styling layouts to make it look scattered organically
+            const randomRotation = -12 + Math.random() * 24;
+            const randomX = -15 + Math.random() * 30;
+            const randomY = -15 + Math.random() * 30;
+            
+            frame.style.transform = `translate(${randomX}px, ${randomY}px) rotate(${randomRotation}deg)`;
+            frame.style.zIndex = images.length - index;
+
+            frame.innerHTML = `
+                <img src="${src}" alt="Our Memory">
+                <div class="polaroid-caption">Memory #${images.length - index}</div>
+            `;
+
+            // Shuffling logic when a frame is tapped
+            frame.addEventListener('click', (e) => {
+                e.stopPropagation(); // Avoid triggering card events
+                frame.style.transform = `translate(${randomX}px, -350px) rotate(${randomRotation}deg) scale(0.9)`;
+                frame.style.opacity = '0';
+                
+                setTimeout(() => {
+                    currentZIndex++;
+                    frame.style.zIndex = currentZIndex;
+                    frame.style.transform = `translate(${randomX}px, ${randomY}px) rotate(${randomRotation}deg)`;
+                    frame.style.opacity = '1';
+                }, 400);
+            });
+
+            wrapper.appendChild(frame);
         });
 
-        // Slideshow Transitions
-        let currentSlide = 0;
-        const slides = document.querySelectorAll('.slide');
-        
-        setInterval(() => {
-            slides[currentSlide].classList.remove('active');
-            currentSlide = (currentSlide + 1) % slides.length;
-            slides[currentSlide].classList.add('active');
-        }, 3000); // Transitions to a new photo every 3 seconds
+        // Letter reveal transition actions
+        function openLetter() {
+            const container = document.getElementById('envelopeContainer');
+            const card = document.getElementById('letterCard');
+            
+            container.classList.add('open');
+            
+            setTimeout(() => {
+                container.classList.add('open-animation');
+            }, 800);
+
+            setTimeout(() => {
+                card.classList.add('visible');
+                // Scroll beautifully into focus view automatically
+                card.scrollIntoView({ behavior: 'smooth' });
+            }, 1200);
+        }
     </script>
 </body>
-  </html>
-          
+    </html>
+    
